@@ -30,7 +30,7 @@ error() {
     log $msg
 }
 
-mkdir -p "$(dirname $LOGFILE)"
+mkdir -p "$(dirname "$LOGFILE")"
 output "Logging to $LOGFILE."
 
 case "$POSITIONING" in
@@ -74,7 +74,7 @@ for nonprimary_output in $(xrandr -q | grep " connected" | grep -v "primary" | c
     fi
     execute="$execute --output $nonprimary_output $position_command $reference --auto"
     last=$nonprimary_output
-    i=$(( i+1 ))
+    (( i++ ))
 done
 
 # explicitly diable all disconnected outputs, necessary for example for i3 to notice
