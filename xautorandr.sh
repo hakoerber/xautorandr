@@ -33,7 +33,7 @@ error() {
 mkdir -p "$(dirname $LOGFILE)"
 output "Logging to $LOGFILE."
 
-case "$POSITIONING" in 
+case "$POSITIONING" in
     "side-by-side")
         position_command="--right-of"
         ;;
@@ -46,16 +46,28 @@ case "$POSITIONING" in
         ;;
 esac
 
+noprimary=0
 primary_output=$(xrandr -q | grep "primary" | cut -d ' ' -f 1)
-output "$primary_output is the primary output."
-
-execute="xrandr --output $primary_output --auto"
+if [[ "$primary_output" ]]; then
+    output "$primary_output is the primary output."
+    execute="xrandr --output $primary_output --auto --primary"
+else
+    noprimary=1
+fi
 
 i=0
 for nonprimary_output in $(xrandr -q | grep " connected" | grep -v "primary" | cut -d ' ' -f 1); do
+    if (( noprimary == 1 )); then
+        output "No primary output found. Setting first found output $nonprimary_output as primary."
+        primary_output="$nonprimary_output"
+        noprimary=0
+        execute="xrandr --output $primary_output --auto --primary"
+        continue
+    fi
+
     output "$nonprimary_output is a non-primary, connected output."
     nonprimary_outputs="$nonprimary_outputs $nonprimary_output"
-    if [[ $i == 0 ]]; then
+    if (( $i == 0 )); then
         reference=$primary_output
     else
         reference=$last
@@ -75,7 +87,7 @@ done
 output "Running constructed command:\n$execute"
 xrandr_output="$($execute 2>&1)"
 xrandr_exitcode=$?
-if [[ ! $xrandr_exitcode == 0 ]]; then
+if (( $xrandr_exitcode != 0 )); then
     error "xrandr failed. output: \n$xrandr_output"
 else
     output "Done."
