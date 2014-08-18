@@ -7,13 +7,13 @@
 # settings:
 
 # set to empty string to disable logging
-LOGFILE="$HOME/.var/log/xautorandr.log"
+declare -r LOGFILE="$HOME/.var/log/xautorandr.log"
 
 # determine the relative positioning of all outputs. available values:
 # - "side-by-side" : place all outputs next to each other, with the primary
 #   output being the leftmost
 # - "mirror" : mirror all outputs
-POSITIONING="side-by-side"
+declare -r POSITIONING="side-by-side"
 
 log() {
     [[ "$LOGFILE" ]] && { echo -e "[$(date +%FT%T)] $*" >> $LOGFILE ; }
@@ -35,10 +35,10 @@ output "Logging to $LOGFILE."
 
 case "$POSITIONING" in
     "side-by-side")
-        position_command="--right-of"
+        declare -r position_command="--right-of"
         ;;
     "mirror")
-        position_command="--same-as"
+        declare -r position_command="--same-as"
         ;;
     *)
         error "Invalid value \"$POSITIONING\" for \$POSITIONING"
