@@ -64,6 +64,8 @@ while read line ; do
     if [[ "$mode" == "primary" ]] ; then
         cmd="$cmd --output ${screen} --auto --primary"
         primary="$screen"
+        ref_right="$screen"
+        ref_left="$screen"
         screens+=("$screen")
     else
         if ! [[ "$primary" ]] ; then
@@ -71,15 +73,19 @@ while read line ; do
             exit 1
         fi
         if is_connected "$screen" ; then
-            if [[ "$mode" == "right" ]] || [[ "$mode" == "left" ]] ; then
-                pos="${mode}-of"
+            if [[ "$mode" == "right" ]] ; then
+                pos="right-of ${ref_right}"
+                ref_right="$screen"
+            elif [[ "$mode" == "left" ]] ; then
+                pos="left-of ${ref_left}"
+                ref_left="$screen"
             elif [[ "$mode" == "mirror" ]] ; then
-                pos="same-as"
+                pos="same-as ${primary}"
             else
                 error "Unknown mode ${mode}."
                 exit 1
             fi
-            cmd="$cmd --output ${screen} --${pos} $primary --auto"
+            cmd="$cmd --output ${screen} --${pos} --auto"
             screens+=("$screen")
         fi
     fi
